@@ -1,0 +1,27 @@
+{
+  "name": "weakpoint",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/poorlajka/weakpoint.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/poorlajka/weakpoint/issues"
+  },
+  "homepage": "https://github.com/poorlajka/weakpoint#readme",
+  "dependencies": {
+    "electron": "^25.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.3"
+  }
+}
