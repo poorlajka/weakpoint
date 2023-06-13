@@ -14,12 +14,8 @@ ipcMain.on("readFileSync", (event, filePath) => {
     }
 });
 ipcMain.on("highlightAuto", (event, code) => {
-    console.log(code);
     let htmlString = hljs.highlightAuto(code).value;
-
-    console.log(htmlString);
     event.returnValue = htmlString;
-
 });
 
 
@@ -28,7 +24,7 @@ const createWindow = (): void => {
     window = new BrowserWindow({
         useContentSize: true,
         width: 900,
-        height: 600,
+        height: 506,
         webPreferences: {
             preload: __dirname + "/preload.js"
         },

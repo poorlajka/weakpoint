@@ -1,0 +1,108 @@
+
+#styling 
+    #redHeader
+        color: turquoise
+        font-size: 5em
+        border: 10px
+        border-style: solid 
+    #firstHeader
+        font-size: 3em
+
+#slide 
+
+    #header name = firstHeader
+        Title of presentation
+
+    #paragraph
+        subtitle
+
+#slide
+
+    #header 
+        Testing image component
+
+    #space
+
+    #image 
+        ./gif.gif
+
+#slide
+
+    #header 
+        Testing highlighted code block component
+
+    #code 
+        window.addEventListener('keypress', (event: KeyboardEvent): void => {
+            const key = event.key;
+            switch (key) {
+                case "d":
+                    if (currentSlide < finalSlide) {
+                        currentSlide++;
+                    }
+                    break;
+                case "a": 
+                    if (currentSlide > 0) {
+                        currentSlide--;
+                    }
+                    break;
+            }
+            renderCurrentSlide();
+        }, true);
+        
+#slide
+
+    #header 
+        Testing paragraph component
+
+    #paragraph
+        Hello there this is a very important paragraph containing super important
+        things like aksdjf;lkadsjf;ldksajf; and ;alskdfj;alksdjf;skjfads;l.
+        Also remember that ;lasdkjf;asdlkjf ;alskdfja;lskdj;fajslfkj
+        Good evening.1111
+
+#slide
+
+    #header 
+        Testing list component
+
+    #list
+        #li first item 
+        #li second item
+        #li third item
+        #li fourth item
+        #li fifth item
+
+#slide
+
+    #header 
+        basic layout
+
+    #list
+        #li important point1 
+        #li something point2
+        #li lfdksjfpoint3
+        #li fdlsakpoint4
+        #li point5fldkasjfdlaskj
+
+    #image 
+        ./picture.jpeg
+      
+#slide
+    #image 
+        ./picture.jpeg
+
+    #header 
+        flipped layout
+
+    #list
+        #li important point1 
+        #li something point2
+        #li lfdksjfpoint3
+        #li fdlsakpoint4
+        #li point5fldkasjfdlaskj
+
+#slide
+
+    #header name = redHeader
+        Testing styling 
+
