@@ -1,7 +1,6 @@
 import { ipcRenderer, ContextBridge, contextBridge } from "electron";
-import { cpus } from "os";
-
 
 contextBridge.exposeInMainWorld("api", {
-    threads: cpus().length
-})
+    readFileSync: (filePath: string) => ipcRenderer.sendSync("readFileSync", filePath),
+    highlightAuto: (htmlString: string) => ipcRenderer.sendSync("highlightAuto", htmlString),
+});

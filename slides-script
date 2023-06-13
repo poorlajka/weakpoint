@@ -1,0 +1,49 @@
+#slide
+
+#header This is a header 
+
+#header another one
+
+#header a third one
+
+#image ./picture.jpeg
+#image ./picture.jpeg
+
+#slide
+
+#header This is a new slide
+
+#image ./picture.jpeg
+
+#header More header
+
+#header More header
+
+
+
+#slide
+
+#header This is the last slide
+
+#header More header
+
+#image ./picture.jpeg
+
+#header More header
+
+#slide
+
+#header code in presentation test
+#code 
+switch (key) {
+    case "d":
+        if (currentSlide < finalSlide) {
+            currentSlide++;
+        }
+        break;
+    case "a":
+        if (currentSlide > 0) {
+            currentSlide--;
+        }
+        break;
+}

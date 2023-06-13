@@ -1,18 +1,43 @@
 import {app, ipcMain, BrowserWindow} from "electron";
-let mainWindow: BrowserWindow;
+import { readFileSync } from 'fs';
+import hljs from 'highlight.js/lib/core';
+import javascript from 'highlight.js/lib/languages/javascript';
 
-const createWindows = (): void => {
-    mainWindow = new BrowserWindow({
+hljs.registerLanguage('javascript', javascript);
+ipcMain.on("readFileSync", (event, filePath) => {
+    try {
+        const data = readFileSync(filePath);
+        event.returnValue = data.toString("utf-8");
+    } catch (err) {
+        console.error(err);
+        event.returnValue = err;
+    }
+});
+ipcMain.on("highlightAuto", (event, code) => {
+    console.log(code);
+    let htmlString = hljs.highlightAuto(code).value;
+
+    console.log(htmlString);
+    event.returnValue = htmlString;
+
+});
+
+
+let window: BrowserWindow; 
+const createWindow = (): void => {
+    window = new BrowserWindow({
+        useContentSize: true,
         width: 900,
         height: 600,
         webPreferences: {
             preload: __dirname + "/preload.js"
         },
-        show: false
+        show: false,
     });
-    mainWindow.loadFile("./index.html");
-    mainWindow.on("ready-to-show", () => mainWindow.show())
+    window.loadFile("./index.html");
+    window.on("ready-to-show", () => window.show())
 }
 
-app.on("ready", createWindows);
+app.on("ready", createWindow);
+
 
