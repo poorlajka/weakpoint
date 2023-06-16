@@ -17,10 +17,7 @@ img {
     width: 100vw;
     height: 100vh;
 
-    padding-top: 10vh;
-    padding-bottom: 10vh;
-    padding-left: 5vw;
-    padding-right: 5vw;
+    padding: 10vh 5vw;
 
     display: flex;
     flex-direction: column;

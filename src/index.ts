@@ -17,6 +17,10 @@ ipcMain.on("highlightAuto", (event, code) => {
     let htmlString = hljs.highlightAuto(code).value;
     event.returnValue = htmlString;
 });
+ipcMain.on("toggleFullScreen", (event) => {
+    window.setFullScreen(!window.isFullScreen());
+    event.returnValue = "nothingm8lmao";
+});
 
 
 let window: BrowserWindow; 
@@ -29,6 +33,9 @@ const createWindow = (): void => {
             preload: __dirname + "/preload.js"
         },
         show: false,
+        autoHideMenuBar: true,
+        icon: "logo.png",
+        resizable: false,
     });
     window.loadFile("./index.html");
     window.on("ready-to-show", () => window.show())

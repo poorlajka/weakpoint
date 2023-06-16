@@ -1,37 +1,29 @@
+#slide
 
-#styling 
-    #redHeader
-        color: turquoise
-        font-size: 5em
-        border: 10px
-        border-style: solid 
-    #firstHeader
-        font-size: 3em
-
-#slide 
-
-    #header name = firstHeader
-        Title of presentation
+    #header
+    fdlsa;kfdj hello
 
     #paragraph
-        subtitle
+        subtitlkfjfd;slkaff;dlsfdks
 
 #slide
 
-    #header 
+    #header
         Testing image component
+
+    #cow
 
     #space
 
-    #image 
+    #image
         ./gif.gif
 
 #slide
 
-    #header 
+    #header
         Testing highlighted code block component
 
-    #code 
+    #code
         window.addEventListener('keypress', (event: KeyboardEvent): void => {
             const key = event.key;
             switch (key) {
@@ -40,7 +32,7 @@
                         currentSlide++;
                     }
                     break;
-                case "a": 
+                case "a":
                     if (currentSlide > 0) {
                         currentSlide--;
                     }
@@ -48,10 +40,10 @@
             }
             renderCurrentSlide();
         }, true);
-        
+
 #slide
 
-    #header 
+    #header
         Testing paragraph component
 
     #paragraph
@@ -62,47 +54,48 @@
 
 #slide
 
-    #header 
+    #header
         Testing list component
 
     #list
-        #li first item 
-        #li second item
-        #li third item
-        #li fourth item
-        #li fifth item
+        first item
+        second item
+        third item
+        fourth item
+        fifth item
 
 #slide
 
-    #header 
+    #header
         basic layout
 
     #list
-        #li important point1 
-        #li something point2
-        #li lfdksjfpoint3
-        #li fdlsakpoint4
-        #li point5fldkasjfdlaskj
+        important point1
+        something point2
+        lfdksjfpoint3
+        fdlsakpoint4
+        point5fldkasjfdlaskj
 
-    #image 
+    #image
         ./picture.jpeg
-      
+
 #slide
-    #image 
+    #image
         ./picture.jpeg
 
-    #header 
+    #header
         flipped layout
 
     #list
-        #li important point1 
-        #li something point2
-        #li lfdksjfpoint3
-        #li fdlsakpoint4
-        #li point5fldkasjfdlaskj
+        important point1
+        something point2
+        lfdksjfpoint3
+        fdlsakpoint4
+        point5fldkasjfdlaskj
 
 #slide
 
-    #header name = redHeader
-        Testing styling 
+    #header
+        Testing styling
+
 

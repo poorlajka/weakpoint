@@ -1,258 +1,229 @@
-//TODO THIS NEEDS MASSIVE REWRITE LMAO
 
-type SlideComponent = {
-    element: string; 
-    styles: string | undefined; 
-    data: string;
+
+type Presentation = {
+    slides: HTMLElement[][];
+    currentSlide: number;
 }
 
+const nextSlide = (): void => {
+    if (presentation.currentSlide < presentation.slides.length-1) {
+        presentation.currentSlide++
+    }
+}
 
-
-let presentation: SlideComponent[][] = [];
-let currentSlide = 0;
-let finalSlide = 0;
-let styles = new Map<string, string>();
-
+const prevSlide = (): void => {
+    if (presentation.currentSlide > 0) {
+        presentation.currentSlide--
+    }
+}
 
 const readSlidesData = (filePath: string): string => {
     // @ts-expect-error
-    const read = window.api.readFileSync(filePath);
-    return read;
+    return window.api.readFileSync(filePath);
 }
 
-const parseSlidesData = (slidesData: string): void => {
-    let lines = slidesData
-        .split("\n")
-        .filter((line) => line !== "");
+const setupEventListeners = (): void => {
+    const slide = document.getElementById("slide");
+    /*
+    slide?.addEventListener("click", () => {
+        nextSlide();
+        renderCurrentSlide();
+    });
+    */
 
-    //THIS FUCKING SUCKS
+    document.onkeydown = (e) => {
+        const key = e.key;
+        switch (key) {
+            case "ArrowRight": case "d":
+                nextSlide();
+                renderCurrentSlide();
+                break;
+            case "ArrowLeft": case "a":
+                prevSlide();
+                renderCurrentSlide();
+                break;
+            case "f":
+                // @ts-expect-error
+                window.api.toggleFullScreen();
+                break;
+            case "r":
+                if (updating) {
+                    window.clearInterval(intervalID);
+                    if (slide != undefined) {
+                        slide.style.borderStyle = "none";
+                        updating = false;
+                    }
+                }
+                else {
+                    if (slide != undefined) {
+                        slide.style.borderStyle = "solid";
+                        slide.style.borderWidth = "0.5px";
+                        slide.style.borderColor = "#ff1212";
+                    }
+
+                    intervalID = window.setInterval(loadPresentation, 100);
+                    updating = true;
+                }
+                break;
+        }
+    };
+}
+
+const renderCurrentSlide = () => {
+    const slide = document.getElementById("slide");
+
+    while (slide?.lastElementChild) {
+        slide?.removeChild(slide?.lastElementChild);
+    }
+
+    for (const element of presentation.slides[presentation.currentSlide]) {
+        slide?.appendChild(element);
+    }
+}
+
+const createHeaderElement = (componentInput: string[]): HTMLElement => {
+    const header = document.createElement("h1");
+    header.innerText = componentInput[0];
+    return header;
+}
+
+const createParagraphElement = (componentInput: string[]): HTMLElement => {
+    const text = componentInput.join("\n");
+    const paragraph = document.createElement("p");
+    paragraph.innerText = text;
+    return paragraph;
+}
+
+const createListElement = (componentInput: string[]): HTMLElement => {
+    const list = document.createElement("ul");
+    for (const liText of componentInput) {
+        const listItem = document.createElement("li");
+        listItem.innerText = liText;
+        list.appendChild(listItem);
+    }
+    return list;
+}
+
+const createImageElement = (componentInput: string[]): HTMLElement => {
+    const image = document.createElement("img");
+    image.src = componentInput[0];
+    return image;
+}
+
+const createCodeElement = (componentInput: string[]): HTMLElement => {
+    const div = document.createElement('div');
+    div.style.whiteSpace = "pre";
+    for (const line of componentInput) {
+        // @ts-expect-error
+        div.innerHTML += window.api.highlightAuto(line) + "<br>";
+
+    }
+    return div
+}
+
+const createComponentElement = (componentType: string,
+                                componentInput: string[]): HTMLElement => {
+    switch (componentType) {
+        case "#header":
+            return createHeaderElement(componentInput);
+        case "#paragraph":
+            return createParagraphElement(componentInput);
+        case "#list":
+            return createListElement(componentInput);
+        case "#image":
+            return createImageElement(componentInput);
+        case "#code":
+            return createCodeElement(componentInput);
+        default:
+            return document.createElement("div");
+    }
+}
+
+const isComponent = (line: string): boolean => {
+    return line.startsWith("#")
+}
+
+const parseComponent = (lines:string[]): [string, string, string[]] => {
+    const componentType = lines[0].split(" ")[0];
+    const componentName = lines[0].split(" ")[2];
+
+    const nextTag= lines
+        .slice(1)
+        .findIndex(line => isComponent(line));
+
+    const inputEnd = (nextTag !== -1) ? nextTag+1 : lines.length;
+    const componentInput = lines.slice(1, inputEnd);
+
+    return [componentType, componentName, componentInput];
+}
+
+const splitAndTrim = (script: string): string[] => {
+    let lines = script
+        .split(/\r?\n/)
+        .filter(line => line.trim() !== "");
+
     for (let i = 0; i < lines.length; i++) {
         if (lines[i].indexOf("#") !== -1) {
             lines[i] = lines[i].trimStart();
         }
     }
 
-    //LOOKING AT THIS MAKES ME CRY HOLY FUCK REWRITE EVERYTHING
-    let num = 0;
-    if (lines[0].split(" ")[0] === "#styling") {
-        lines.splice(0, 1);
-        for (const [i, line] of lines.entries()) {
-            let tag = line.split(" ")[0];
-            if (tag === "#slide") {
-                num = i;
-                break;
-            }
-            let className: string;
-            if (tag.startsWith("#")) {
-                className = tag.split("#")[1];
-                let classStyles = "";
-                let j = i+1;
-                while (true) {
-                    if (lines[j][0] === "#") {
-                        break;
-                    }
-                    classStyles += lines[j] + "; "
-                    j++;
-                }
-                styles.set(className, classStyles);
-            }
-        }
-
-    }
-
-    lines = lines.slice(num)
-
-    let slide: SlideComponent[] = [];
-    lines.splice(0, 1);
-
-    for (const [i, line] of lines.entries()) {
-        switch(line.split(" ")[0]) {
-            case "#slide":
-                presentation.push(slide)
-                slide = [];
-                break;
-            case "#header":
-                let name = line.split(" name = ")[1];
-                const header: SlideComponent = {
-                    element: "h1",
-                    styles: styles.get(name),
-                    data: lines[i+1],
-                }
-                slide.push(header);
-                break;
-            case "#image":
-                const image: SlideComponent = {
-                    element: "img",
-                    styles: "",
-                    data: lines[i+1],
-                }
-                slide.push(image);
-                break;
-            case "#code":
-                const code: SlideComponent = {
-                    element: "code",
-                    styles: "",
-                    data: "",
-                }
-                let j = i+1;
-                while (true) {
-                    if (j>lines.length-1) {
-                        break;
-                    }
-                    if (lines[j][0] === "#") {
-                        break;
-                    }
-                    // @ts-expect-error
-                    code.data += window.api.highlightAuto(lines[j]) + "<br>";
-                    j++;
-                }
-                slide.push(code);
-                break;
-            case "#paragraph":
-                const paragraph: SlideComponent = {
-                    element: "p",
-                    styles: "",
-                    data: "",
-                }
-                let k = i+1;
-                while (true) {
-                    if (k>lines.length-1) {
-                        break;
-                    }
-                    if (lines[k][0] === "#") {
-                        break;
-                    }
-                    paragraph.data += lines[k] + "<br/>";
-                    k++;
-                }
-                slide.push(paragraph);
-                break;
-            case "#list":
-                const list: SlideComponent = {
-                    element: "ul",
-                    styles: "",
-                    data: "",
-                }
-                let l = i+1;
-                while (true) {
-                    if (l>lines.length-1) {
-                        break;
-                    }
-                    let tag = lines[l].split(" ")[0];
-                    if (tag !== "#li") {
-                        break;
-                    }
-                    if (lines[l][0] !== "#") {
-                        break;
-                    }
-                    console.log(line)
-                    list.data += "<li>" + lines[l].split("#li ")[1] + "</li>";
-                    l++;
-                }
-                /*
-                */
-                slide.push(list);
-                break;
-            case "#space":
-                const space: SlideComponent = {
-                    element: "space",
-                    styles: "",
-                    data: "",
-                }
-                slide.push(space);
-                break;
-        }
-    }
-    presentation.push(slide)
-    finalSlide = presentation.length - 1;
-} 
-
-const renderCurrentSlide = (): void => {
-    const slide = document.getElementById("slide");
-    while (slide?.lastElementChild) {
-        slide?.removeChild(slide?.lastElementChild);
-    }
-
-    for (const slideComponent of presentation[currentSlide]) {
-        switch(slideComponent.element) {
-            case "h1":
-                const htmlElement = document.createElement(slideComponent.element);
-                const textNode = document.createTextNode(slideComponent.data);
-                htmlElement.appendChild(textNode);
-                htmlElement.style.cssText = slideComponent.styles ?? "";
-                slide?.appendChild(htmlElement);
-                break;
-            case "p":
-                const paragraph = document.createElement(slideComponent.element);
-                paragraph.innerHTML = slideComponent.data;
-                paragraph.style.fontSize = "16pt"
-                slide?.appendChild(paragraph);
-                break;
-            case "ul":
-                const list = document.createElement(slideComponent.element);
-                list.innerHTML = slideComponent.data;
-                list.style.fontSize = "20pt"
-                slide?.appendChild(list);
-                break;
-            case "img":
-                const image = document.createElement(slideComponent.element);
-                const div = document.createElement("div");
-                image.src = slideComponent.data;
-                div.style.flexBasis = "100%";
-                div.style.display = "flex";
-                div.style.flexDirection = "column";
-                div.style.alignItems = "center";
-                div.style.justifyContent = "center";
-                div.appendChild(image);
-                slide?.appendChild(div);
-                break;
-            case "code":
-                var wrapper = document.createElement('div');
-                wrapper.style.whiteSpace = "pre";
-                wrapper.innerHTML= slideComponent.data;
-                slide?.appendChild(wrapper);
-
-                break;
-            case "space":
-                var space = document.createElement('div');
-                space.style.height = "50px";
-                space.style.width= "200px";
-                slide?.appendChild(space);
-
-                break;
-        }
-    }
+    return lines;
 }
 
-const setupEventListeners = (): void => {
-    const slide = document.getElementById("slide");
-    slide?.addEventListener("click", () => {
-        if (currentSlide < finalSlide) {
-            currentSlide++;
-        }
-        renderCurrentSlide();
-    });
+const parseStyles = (lines: string): Map<string, string> => {
+    const styles = new Map<string, string>;
 
-    window.addEventListener('keypress', (event: KeyboardEvent): void => {
-        const key = event.key;
-        switch (key) {
-            case "d":
-                if (currentSlide < finalSlide) {
-                    currentSlide++;
-                }
-                break;
-            case "a": 
-                if (currentSlide > 0) {
-                    currentSlide--;
-                }
-                break;
-        }
-        renderCurrentSlide();
-    }, true);
+    return styles;
 }
 
-const data = readSlidesData("./slides-script.txt");
-parseSlidesData(data);
-renderCurrentSlide();
-setupEventListeners();
 
+const parseScript = (script: string): HTMLElement[][] => {
+    let lines = splitAndTrim(script);
+    //const styles = parseStyles()
+
+    const elements: HTMLElement[][] = [];
+    let slideElements: HTMLElement[] = [];
+
+    lines = lines.slice(1);
+
+    for (let i = 0; i < lines.length; ++i) {
+        if (!isComponent(lines[i])) {
+            continue;
+        }
+
+        const [componentType, componentName, componentInput]
+            = parseComponent(lines.slice(i));
+
+        if (componentType === "#slide") {
+            elements.push(slideElements);
+            slideElements = [];
+            continue;
+        }
+
+        const element = createComponentElement(componentType, componentInput);
+        //element.style.cssText += styles[componentName];
+        slideElements.push(element);
+        i += componentInput.length;
+    }
+    elements.push(slideElements);
+
+    return elements;
+}
+
+let presentation: Presentation = {slides: [], currentSlide: 0};
+let updating: boolean = false;
+let intervalID: number;
+
+const loadPresentation = (): void => {
+    const script = readSlidesData("./slides-script.txt");
+    presentation.slides = parseScript(script);
+    renderCurrentSlide();
+}
+
+const main = (): void => {
+    loadPresentation();
+    setupEventListeners();
+}
+
+main();
