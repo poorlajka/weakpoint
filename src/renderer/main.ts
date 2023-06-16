@@ -6,6 +6,8 @@ type SlideComponent = {
     data: string;
 }
 
+
+
 let presentation: SlideComponent[][] = [];
 let currentSlide = 0;
 let finalSlide = 0;
