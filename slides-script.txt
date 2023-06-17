@@ -1,10 +1,20 @@
+#style
+    #redHeader
+        color: yellow
+        height: 30vh
+        width: 30vw
+        border: 3px solid red
+        text-shadow: red 2px 5px
+        font-size: 45pt
+        text-align: center
+
 #slide
 
     #header
-    fdlsa;kfdj hello
+        presentation title
 
     #paragraph
-        subtitlkfjfd;slkaff;dlsfdks
+        subtitle
 
 #slide
 
@@ -69,7 +79,7 @@
     #header
         basic layout
 
-    #list
+    #orderedList
         important point1
         something point2
         lfdksjfpoint3
@@ -86,7 +96,7 @@
     #header
         flipped layout
 
-    #list
+    #orderedList
         important point1
         something point2
         lfdksjfpoint3
@@ -95,7 +105,16 @@
 
 #slide
 
-    #header
+    #header name = redHeader
         Testing styling
+
+#slide
+
+    #header
+        Testing video component
+
+    #video
+        video.mp4
+
 
 

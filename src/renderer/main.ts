@@ -104,10 +104,34 @@ const createListElement = (componentInput: string[]): HTMLElement => {
     return list;
 }
 
+const createOrderedListElement = (componentInput: string[]): HTMLElement => {
+    const list = document.createElement("ol");
+    for (const liText of componentInput) {
+        const listItem = document.createElement("li");
+        listItem.innerText = liText;
+        list.appendChild(listItem);
+    }
+    return list;
+}
+
 const createImageElement = (componentInput: string[]): HTMLElement => {
     const image = document.createElement("img");
     image.src = componentInput[0];
     return image;
+}
+
+const createVideoElement = (componentInput: string[]): HTMLElement => {
+    const video = document.createElement("video");
+
+    //TODO REMOVE THIS SET SANE DEFAULT IN CSS GOES FOR ALL COMPONENTS :)
+    video.height = 230;
+    video.width = 400;
+
+    video.src = componentInput[0];
+    video.controls = true;
+    video.style.outline = "none";
+    video.volume = 0.15;
+    return video;
 }
 
 const createCodeElement = (componentInput: string[]): HTMLElement => {
@@ -121,6 +145,13 @@ const createCodeElement = (componentInput: string[]): HTMLElement => {
     return div
 }
 
+const createPaddingElement = (componentInput: string[]): HTMLElement => {
+    const div = document.createElement('div');
+    div.style.height = componentInput[0];
+    div.style.width = "50px";
+    return div;
+}
+
 const createComponentElement = (componentType: string,
                                 componentInput: string[]): HTMLElement => {
     switch (componentType) {
@@ -130,10 +161,16 @@ const createComponentElement = (componentType: string,
             return createParagraphElement(componentInput);
         case "#list":
             return createListElement(componentInput);
+        case "#orderedList":
+            return createOrderedListElement(componentInput);
         case "#image":
             return createImageElement(componentInput);
+        case "#video":
+            return createVideoElement(componentInput);
         case "#code":
             return createCodeElement(componentInput);
+        case "#padding":
+            return createPaddingElement(componentInput);
         default:
             return document.createElement("div");
     }
@@ -145,13 +182,13 @@ const isComponent = (line: string): boolean => {
 
 const parseComponent = (lines:string[]): [string, string, string[]] => {
     const componentType = lines[0].split(" ")[0];
-    const componentName = lines[0].split(" ")[2];
+    const componentName = lines[0].split(" = ")[1];
 
-    const nextTag= lines
+    const nextTagIndex= lines
         .slice(1)
         .findIndex(line => isComponent(line));
 
-    const inputEnd = (nextTag !== -1) ? nextTag+1 : lines.length;
+    const inputEnd = (nextTagIndex !== -1) ? nextTagIndex+1 : lines.length;
     const componentInput = lines.slice(1, inputEnd);
 
     return [componentType, componentName, componentInput];
@@ -162,38 +199,53 @@ const splitAndTrim = (script: string): string[] => {
         .split(/\r?\n/)
         .filter(line => line.trim() !== "");
 
-    for (let i = 0; i < lines.length; i++) {
-        if (lines[i].indexOf("#") !== -1) {
-            lines[i] = lines[i].trimStart();
-        }
-    }
-
-    return lines;
+    return lines
+        .map((line) => {
+            return line.includes("#") ? line.trimStart() : line;
+        });
 }
 
-const parseStyles = (lines: string): Map<string, string> => {
+const parseStyles = (lines: string[]): Map<string, string> => {
     const styles = new Map<string, string>;
+
+    let name: string = "";
+    for(const line of lines) {
+        if (isComponent(line)) {
+            name = line.split("#")[1];
+            continue
+        }
+        if (name === "") {
+            continue;
+        }
+        if (styles.has(name)) {
+            styles.set(name, styles.get(name) + line.trim() + ";");
+        }
+        else {
+            styles.set(name, line.trim() + ";");
+        }
+    }
 
     return styles;
 }
 
-
 const parseScript = (script: string): HTMLElement[][] => {
     let lines = splitAndTrim(script);
-    //const styles = parseStyles()
+    let slidesStartIndex = lines.findIndex(line => line.includes("#slide"));
+
+    let styles: Map<string, string> = new Map<string, string>;
+    styles = parseStyles(lines.slice(1, slidesStartIndex));
+    const presentationLines = lines.slice(slidesStartIndex+1);
 
     const elements: HTMLElement[][] = [];
     let slideElements: HTMLElement[] = [];
 
-    lines = lines.slice(1);
-
-    for (let i = 0; i < lines.length; ++i) {
-        if (!isComponent(lines[i])) {
+    for (let i = 0; i < presentationLines.length; ++i) {
+        if (!isComponent(presentationLines[i])) {
             continue;
         }
 
         const [componentType, componentName, componentInput]
-            = parseComponent(lines.slice(i));
+            = parseComponent(presentationLines.slice(i));
 
         if (componentType === "#slide") {
             elements.push(slideElements);
@@ -202,7 +254,8 @@ const parseScript = (script: string): HTMLElement[][] => {
         }
 
         const element = createComponentElement(componentType, componentInput);
-        //element.style.cssText += styles[componentName];
+        console.log(styles.get(componentName))
+        element.style.cssText += styles.get(componentName) ?? "";
         slideElements.push(element);
         i += componentInput.length;
     }
