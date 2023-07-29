@@ -2,6 +2,7 @@ import {app, ipcMain, BrowserWindow} from "electron";
 import { readFileSync } from 'fs';
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
+import electron from 'electron'
 
 hljs.registerLanguage('javascript', javascript);
 ipcMain.on("readFileSync", (event, filePath) => {
@@ -43,4 +44,11 @@ const createWindow = (): void => {
 
 app.on("ready", createWindow);
 
+let hi = {prop1: process.argv};
+
+if (process.argv.length < 3) {
+    console.log("No file provided, exiting");
+    app.quit();
+}
+console.log(hi.prop1[2]);
 

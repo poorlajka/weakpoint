@@ -3,15 +3,18 @@
         color: yellow
         height: 30vh
         width: 30vw
-        border: 3px solid red
+        border: 3px solid green
         text-shadow: red 2px 5px
         font-size: 45pt
         text-align: center
 
+    #newtitle
+        font-size: 40pt
+
 #slide
 
-    #header
-        presentation title
+    #header name = newtitle
+       title of pres
 
     #paragraph
         subtitle
@@ -19,13 +22,11 @@
 #slide
 
     #header
-        Testing image component
-
-    #cow
+        Testing image component fldksa;fd
 
     #space
 
-    #image
+    #image name = img
         ./gif.gif
 
 #slide
@@ -93,6 +94,9 @@
     #image
         ./picture.jpeg
 
+    #padding
+        10vh
+
     #header
         flipped layout
 
@@ -115,6 +119,12 @@
 
     #video
         video.mp4
+#slide
+    #header
+        title
+    #image
+        ./gif.gif
+
 
 
 
